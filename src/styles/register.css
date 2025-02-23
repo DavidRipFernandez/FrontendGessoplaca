@@ -1,0 +1,31 @@
+
+
+.container-register{
+    width: 100%;
+    background-color: white;
+    padding:100px;
+}
+
+
+
+.text-create-account-register>span{
+    font-size: 15px;
+    color: #edac58;
+}
+
+
+.text-forgot-register >span{
+    font-size: 15px;
+    color:#000;
+}
+
+.text-register{
+    font-size: 20px;
+    color:#edac58;
+}
+
+/* En register.css */
+.row-table {
+    min-height: 300px; /* Ajusta según necesidad */
+  }
+  
