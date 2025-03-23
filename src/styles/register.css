@@ -2,8 +2,12 @@
 
 .container-register{
     width: 100%;
-    background-color: white;
     padding:100px;
+    
+}
+
+.form-register{
+    background-color: red;
 }
 
 
@@ -25,7 +29,5 @@
 }
 
 /* En register.css */
-.row-table {
-    min-height: 300px; /* Ajusta según necesidad */
-  }
-  
+
+

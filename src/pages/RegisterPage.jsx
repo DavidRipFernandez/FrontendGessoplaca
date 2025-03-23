@@ -1,95 +1,172 @@
-import { Row,Form,Card,Col,Image,Button } from "react-bootstrap"
-import ProductsTable from '../components/products/ProductsTable'
-import { Link} from "react-router-dom"
-import '../styles/register.css';
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Role } from "../services/RoleServices";
+import { GeneralMessages } from "../helpers/Messages/GeneralMessages";
+import { UserServices } from "../services/UsersService";
 
+const RegisterPage = () => {
+  const [data, setData] = useState({
+    Nombre: "",
+    Correo: "",
+    Password: "",
+    confirmPassword: "",
+    RolId: "",
+  });
+  const [roles, setRoles] = useState([]);
+  const [passwordMatch, setPasswordMatch] = useState(true); // Estado para verificar si las contraseñas coinciden
 
+  const updateDataForm = ({ target }) => {
+    const { value, name } = target;
+    setData((prev) => ({ ...prev, [name]: value }));
 
-export function RegisterPage(){
-  
-    return <>
-  
-    <div className="flex-1 overflow-auto relative z-10 container-register">
-    <Row className="align-items-center justify-content-center g-0">
-      <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
-        <Card className="smooth-shadow-md">
-          <Card.Body className="p-6">
-            <div className="mb-4">
-              <Link to="/">
-                <Image
-                  src="/images/brand/logo/logo-primary.svg"
-                  className="mb-2"
-                  alt=""
-                />
-              </Link>
-              <p className="mb-6 text-register">Registrar Cuenta</p>
-            </div>
-              <Form>
-                <Form.Group className="mb-3" controlId="username">
-                  <Form.Label>Username or email</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="username"
-                    placeholder="User Name"
-                    required
-                  />
-                </Form.Group>
+    // Verificar si las contraseñas coinciden
+    if (name === "Password" || name === "confirmPassword") {
+      setPasswordMatch(data.Password === data.confirmPassword);
+    }
+  };
 
-                <Form.Group className="mb-3" controlId="email">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    placeholder="Enter address here"
-                    required
-                  />
-                </Form.Group>
+  useEffect(() => {
+    const fetchRoles = async () => {
+      const rol = await Role.getRoles();
+      setRoles(rol);
+    };
+    fetchRoles();
+  }, []);
 
-                <Form.Group className="mb-3" controlId="password">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    placeholder="**************"
-                    required
-                  />
-                </Form.Group>
+  const sendData = async (event) => {
+    event.preventDefault();
 
-                <Form.Group className="mb-3" controlId="confirm-password">
-                  <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="confirm-password"
-                    placeholder="**************"
-                    required
-                  />
-                </Form.Group>
+    if (data.Password !== data.confirmPassword) {
+      GeneralMessages.Failed("Las contraseñas no coinciden");
+      return;
+    }
 
-                <div>
-                  <div className="d-grid">
-                    <Button style={{ backgroundColor: "#edac58", borderColor: "#edac58", color: "#fff" }}  type="submit">
-                      Registrar
-                    </Button>
-                  </div>
-            
-                </div>
-              </Form>
-          
-          </Card.Body>
-        </Card>
-      </Col>
-    </Row>
-    <Row className="mt-4 row-table">
-      <Col>
-        <Card>
-          <Card.Body style={{ overflowX: "auto" }}>
-            <ProductsTable/>
-          </Card.Body>
-        </Card>
-      </Col>
-    </Row>
-   
-    </div>
-         
-    </>
-}
+    try {
+      const register = await UserServices.registerUser({
+        Nombre: data.Nombre,
+        Correo: data.Correo,
+        Password: data.Password,
+        RolId: data.RolId,
+      });
+
+      if (register.success) {
+        GeneralMessages.Success(register.message);
+
+        // Limpiar los campos de los inputs después del registro exitoso
+        setData({
+          Nombre: "",
+          Correo: "",
+          Password: "",
+          confirmPassword: "",
+          RolId: "",
+        });
+
+        return;
+      }
+
+      GeneralMessages.Failed(register.message);
+    } catch (error) {
+      GeneralMessages.Failed("Error al registrar el usuario");
+    }
+  };
+
+  return (
+    <motion.div
+      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-8 border border-gray-700 max-w-3xl mx-auto mt-20"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h2 className="text-2xl font-semibold text-gray-100 mb-6 text-center">Registrar Cuenta</h2>
+      <form onSubmit={sendData} className="grid grid-cols-2 gap-6">
+        <div className="col-span-2 md:col-span-1">
+          <label className="text-gray-100 block mb-2">Username</label>
+          <input
+            type="text"
+            name="Nombre"
+            placeholder="User Name"
+            value={data.Nombre}
+            required
+            onChange={updateDataForm}
+            className="w-full p-3 rounded-md bg-gray-900 text-white border border-gray-600 focus:border-custom-yellow focus:ring-2 focus:ring-custom-yellow focus:outline-none"
+          />
+        </div>
+
+        <div className="col-span-2 md:col-span-1">
+          <label className="text-gray-100 block mb-2">Email</label>
+          <input
+            type="email"
+            name="Correo"
+            placeholder="Enter address here"
+            value={data.Correo}
+            required
+            onChange={updateDataForm}
+            className="w-full p-3 rounded-md bg-gray-900 text-white border border-gray-600 focus:border-custom-yellow focus:ring-2 focus:ring-custom-yellow focus:outline-none"
+          />
+        </div>
+
+        <div className="col-span-2 md:col-span-1">
+          <label className="text-gray-100 block mb-2">Password</label>
+          <input
+            type="password"
+            name="Password"
+            placeholder="**************"
+            value={data.Password}
+            required
+            onChange={updateDataForm}
+            className={`w-full p-3 rounded-md bg-gray-900 text-white border ${
+              passwordMatch ? "border-gray-600" : "border-red-500"
+            } focus:border-custom-yellow focus:ring-2 focus:ring-custom-yellow focus:outline-none`}
+          />
+        </div>
+
+        <div className="col-span-2 md:col-span-1">
+          <label className="text-gray-100 block mb-2">Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="**************"
+            value={data.confirmPassword}
+            required
+            onChange={updateDataForm}
+            className={`w-full p-3 rounded-md bg-gray-900 text-white border ${
+              passwordMatch ? "border-gray-600" : "border-red-500"
+            } focus:border-custom-yellow focus:ring-2 focus:ring-custom-yellow focus:outline-none`}
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="text-gray-100 block mb-2">Selecciona una opción</label>
+          <select
+            name="RolId"
+            value={data.RolId}
+            onChange={updateDataForm}
+            className="w-full p-3 rounded-md bg-gray-900 text-white border border-gray-600 focus:border-custom-yellow focus:ring-2 focus:ring-custom-yellow focus:outline-none"
+          >
+            <option value="" disabled>-- Selecciona --</option>
+            {roles.length > 0 ? (
+              roles.map((role) => (
+                <option key={role.rolId} value={role.rolId}>
+                  {role.nombreRol}
+                </option>
+              ))
+            ) : (
+              <option>Loading...</option>
+            )}
+          </select>
+        </div>
+
+        <div className="col-span-2">
+          <button
+            type="submit"
+            className="w-full bg-custom-yellow text-gray-900 p-3 rounded-md font-semibold hover:bg-yellow-500 transition-colors"
+          >
+            Registrar
+          </button>
+        </div>
+      </form>
+    </motion.div>
+  );
+};
+
+export default RegisterPage;

@@ -1,114 +1,82 @@
-
-import { Row, Col, Card, Form, Button, Image } from "react-bootstrap";
-import { Link,useNavigate} from "react-router-dom";
-import { FaUserLarge } from "react-icons/fa6";
-import { useContext } from "react";
-import { UserContext } from "../context/UserContext";
-import { FormHook } from "../hooks/FormHook";
+import { motion } from "framer-motion";
+import { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { LoginMessages } from "../helpers/Messages/LoginMessages";
-import '../styles/login.css'
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 
-const Login = () => {
-   const {login} = useContext(UserContext);
-   const {data,updateData,clearData} = FormHook({email:"",password:""});
-   const navigator = useNavigate();
+const LoginPage = () => {
+  const {login,logout,user_data} = useContext(UserContext);
+  const navigator  = useNavigate();
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+  });
 
-   console.log(data);
+  const updateDataForm = ({ target }) => {
+    const { value, name } = target;
+    setData((prev) => ({ ...prev, [name]: value }));
+  };
 
-   const onLogin = async(event)=>{
+  const sendData = async(event) => {
     event.preventDefault();
-    LoginMessages.Success("Login Succesfully")
-    navigator("/users/dashboard",{replace:true});
-      //const response = await login(data.email,data.password);
-      
-      //  if(response.isSuccess){
-         // MessageSuccess.loginSuccess("Loggin Succesfully");
-         // navigator("/users/dashboard",{replace:true});
-       //   return;
-        //}else{
-            LoginMessages.Failed("datos incorrectos");
-      //  }
+    const datas = await login(data.email,data.password);
+      if(datas.isSuccess){
+        LoginMessages.Success(datas.message);
+        navigator('/users/users/list',{replace:true});
+        return;
+      }
+      LoginMessages.Failed(datas.message);
+      return;
+  };
 
-
-
-   }
-
-   const handleData = ({target})=>{
-       const {value,name} = target;
-       updateData(name,value);
-       console.log(data);
-   }
-   
   return (
-    <div className="container-login">
-        <Row className="align-items-center justify-content-center g-0 min-vh-100">
-      <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
-        <Card className="smooth-shadow-md">
-          <Card.Body className="p-6">
-          <div className="mb-4 d-flex flex-column align-items-center justify-content-center text-center">
-              <Link to="/">
-                <FaUserLarge style={{ fontSize: "3rem", color: "#edac58" }} />
-              </Link>
-              <p className="mb-6">Ingresa tus datos</p>
-          </div>
+    <motion.div
+      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 max-w-md mx-auto mt-20 h-[500px]"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h2 className="text-xl font-semibold text-gray-100 mb-4 text-center">Iniciar Sesión</h2>
+      <form onSubmit={sendData} className="space-y-4">
+        <div>
+          <label className="text-gray-100">Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Introduce tu correo"
+            required
+            onChange={updateDataForm}
+            className="w-full p-2 mt-1 rounded-md bg-gray-900 text-white border border-gray-600"
+          />
+        </div>
 
+        <div>
+          <label className="text-gray-100">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            placeholder="**************"
+            required
+            onChange={updateDataForm}
+            className="w-full p-2 mt-1 rounded-md bg-gray-900 text-white border border-gray-600"
+          />
+        </div>
 
-              <Form onSubmit={onLogin}>
-                <Form.Group className="mb-3" controlId="username">
-                  <Form.Label>Username or email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    placeholder="Enter address here"
-                    onChange={handleData}
-                    required
-                  />
-                </Form.Group>
+        <button
+          type="submit"
+          className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition-colors"
+        >
+          Iniciar Sesión
+        </button>
+      </form>
 
-                <Form.Group className="mb-3" controlId="password">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    name="password"
-                    placeholder="**************"
-                    onChange={handleData}
-                    required
-                  />
-                </Form.Group>
-
-                <div className="d-lg-flex justify-content-between align-items-center mb-4">
-                  <Form.Check type="checkbox" id="rememberme">
-                    <Form.Check.Input type="checkbox" />
-                    <Form.Check.Label>Remember me</Form.Check.Label>
-                  </Form.Check>
-                </div>
-                <div>
-                  <div className="d-grid">
-                  <Button style={{ backgroundColor: "#edac58", borderColor: "#edac58", color: "#fff" }} type="submit">
-                         Sign In
-                  </Button>
-                  </div>
-                  <div className="d-md-flex justify-content-between mt-4">
-                    <div>
-                      <Link
-                        to="/register"
-                        className="text-inherit fs-5 text-forgot-login"
-                      >
-                        <span>Forgot your password?</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </Form>
-            
-          </Card.Body>
-        </Card>
-      </Col>
-    </Row>
-    </div>
-    
+      <div className="mt-4 text-center">
+          <p>No tienes una cuenta? Registrate</p>
+      </div>
+    </motion.div>
   );
 };
 
-export default Login;
+export default LoginPage;

@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import { RoutesAuth } from "./routes/RoutesAuth";
+import { PrivateComponente } from "./components/privateComponent";
 
 function App() {
 	return (
@@ -10,7 +11,9 @@ function App() {
 			<Routes>
 				<Route path='/' element={<Login/>}/>
 				<Route path="/users/*" element={
-                                            <RoutesAuth/>
+											<PrivateComponente>
+												  <RoutesAuth/>
+											</PrivateComponente>
                                           } /> 
 				 <Route path="/*" element={<Navigate element="/"/>}/>
 			</Routes>

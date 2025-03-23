@@ -1,0 +1,16 @@
+
+
+
+.container-userslist{
+    width: 100%;
+    padding:100px 20px;
+}
+
+
+@media(width<=600px){
+    .container-userslist{
+        padding: 0;
+    }
+}
+
+
