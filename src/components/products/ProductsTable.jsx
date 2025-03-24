@@ -3,6 +3,7 @@ import { Edit, Search, Eye, EyeOff, Trash } from "lucide-react";  // Importar el
 import { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { UserServices } from "../../services/UsersService";
+import { select } from "framer-motion/client";
 
 const ProductsTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,13 +14,21 @@ const ProductsTable = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [passwordVisibility, setPasswordVisibility] = useState({});
   const [productToDelete, setProductToDelete] = useState(null); // Para almacenar el producto a eliminar
+  const [error, setError] = useState(""); // Estado para manejar errores
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setError(""); //Limpia el mensaje de error al cerrar el modal
+  };
+  
+  
   const handleCloseDeleteModal = () => setShowDeleteModal(false); // Cerrar modal de eliminación
+
 
   const handleShow = (product) => {
     setSelectedProduct(product);
     setShow(true);
+    setError(""); // Limpiar el mensaje de error al abrir el modal
   };
 
   const handleShowDeleteModal = (product) => {
@@ -54,6 +63,11 @@ const ProductsTable = () => {
 
   const handleSaveChanges = async () => {
     if (selectedProduct) {
+      //validar que el campo de contraseña no este vacio
+      if (!selectedProduct.constraseña || selectedProduct.constraseña.trim()=== ""){
+        setError("La contraseña no puede estar vacía.");
+        return;
+      }
       try {
         const updatedUser = {
           usuarioId: selectedProduct.usuarioId, 
@@ -117,7 +131,7 @@ const ProductsTable = () => {
           <input
             type="text"
             placeholder="Buscar usuarios..."
-            className="bg-black-700 placeholder-gray rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-black-700 placeholder-gray rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
             onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
             value={searchTerm}
           />
@@ -257,7 +271,9 @@ const ProductsTable = () => {
                   name="constraseña"
                   value={selectedProduct.constraseña}
                   onChange={handleInputChange}
+                  className = {error? "border-red-500": ""} //agregar un borde rojo si hay error
                 />
+                {error && <p classname="text-danger">{error}</p>}
               </Form.Group>
 
               <Form.Group controlId="formStatus">

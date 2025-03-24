@@ -46,12 +46,14 @@ const Sidebar = () => {
 
     return (
         <motion.div
-            className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 ${
-                isSidebarOpen ? "w-64" : "w-20"
-            }`}
-            animate={{ width: isSidebarOpen ? 256 : 80 }}
-        >
-            <div className='h-full bg-menu-color-dark bg-opacity-0 backdrop-blur-md p-4 flex flex-col border-r border-gray-700'>
+        className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 ${
+            isSidebarOpen ? "w-64" : "w-20"
+        }`}
+        animate={{ width: isSidebarOpen ? 256 : 80 }}
+    >
+        <div className='h-full bg-menu-color-dark bg-opacity-0 backdrop-blur-md p-4 flex flex-col border-r border-gray-700'>
+            {/* Contenedor para el ícono de menú y el nombre "Gessoplaca" */}
+            <div className="flex items-center">
                 <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -62,7 +64,7 @@ const Sidebar = () => {
                 </motion.button>
                 {isSidebarOpen && (
                     <motion.span
-                        className='ml-4 whitespace-nowrap'
+                        className='ml-4 whitespace-nowrap text-lg font-semibold'
                         initial={{ opacity: 0, width: 0 }}
                         animate={{ opacity: 1, width: "auto" }}
                         exit={{ opacity: 0, width: 0 }}
@@ -71,74 +73,77 @@ const Sidebar = () => {
                         Gessoplaca
                     </motion.span>
                 )}
-                <nav className='mt-8 flex-grow'>
-                    {SIDEBAR_ITEMS.map((item) => (
-                        <div key={item.name}>
-                            {item.action ? (
-                                // Botón para cerrar sesión
-                                <button 
-                                    onClick={item.action} 
-                                    className='flex items-center w-full p-4 text-sm font-medium rounded-lg hover:bg-red-700 transition-colors mb-2'
+            </div>
+    
+            {/* Resto del código del sidebar */}
+            <nav className='mt-8 flex-grow'>
+                {SIDEBAR_ITEMS.map((item) => (
+                    <div key={item.name}>
+                        {item.action ? (
+                            // Botón para cerrar sesión
+                            <button 
+                                onClick={item.action} 
+                                className='flex items-center w-full p-4 text-sm font-medium rounded-lg hover:bg-red-700 transition-colors mb-2'
+                            >
+                                <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
+                                {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
+                            </button>
+                        ) : item.subItems ? (
+                            <>
+                                <motion.div
+                                    onClick={() => toggleSubmenu(item.name)}
+                                    className='flex items-center justify-between p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2 cursor-pointer'
                                 >
+                                    <div className='flex items-center'>
+                                        <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
+                                        <AnimatePresence>
+                                            {isSidebarOpen && (
+                                                <motion.span
+                                                    className='ml-4 whitespace-nowrap'
+                                                    initial={{ opacity: 0, width: 0 }}
+                                                    animate={{ opacity: 1, width: "auto" }}
+                                                    exit={{ opacity: 0, width: 0 }}
+                                                    transition={{ duration: 0.2, delay: 0.3 }}
+                                                >
+                                                    {item.name}
+                                                </motion.span>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    {isSidebarOpen && <span>{openSubmenus[item.name] ? "▲" : "▼"}</span>}
+                                </motion.div>
+    
+                                <AnimatePresence>
+                                    {openSubmenus[item.name] &&
+                                        item.subItems.map((sub) => (
+                                            <motion.div
+                                                key={sub.href}
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: "auto" }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                            >
+                                                <Link to={sub.href} className='block ml-6 p-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg'>
+                                                    <sub.icon size={18} style={{ color: sub.color, minWidth: "18px" }} className="mr-2 inline-block" />
+                                                    {isSidebarOpen && sub.name}
+                                                </Link>
+                                            </motion.div>
+                                        ))}
+                                </AnimatePresence>
+                            </>
+                        ) : (
+                            <Link to={item.href}>
+                                <motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2'>
                                     <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
                                     {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
-                                </button>
-                            ) : item.subItems ? (
-                                <>
-                                    <motion.div
-                                        onClick={() => toggleSubmenu(item.name)}
-                                        className='flex items-center justify-between p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2 cursor-pointer'
-                                    >
-                                        <div className='flex items-center'>
-                                            <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
-                                            <AnimatePresence>
-                                                {isSidebarOpen && (
-                                                    <motion.span
-                                                        className='ml-4 whitespace-nowrap'
-                                                        initial={{ opacity: 0, width: 0 }}
-                                                        animate={{ opacity: 1, width: "auto" }}
-                                                        exit={{ opacity: 0, width: 0 }}
-                                                        transition={{ duration: 0.2, delay: 0.3 }}
-                                                    >
-                                                        {item.name}
-                                                    </motion.span>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                        {isSidebarOpen && <span>{openSubmenus[item.name] ? "▲" : "▼"}</span>}
-                                    </motion.div>
-
-                                    <AnimatePresence>
-                                        {openSubmenus[item.name] &&
-                                            item.subItems.map((sub) => (
-                                                <motion.div
-                                                    key={sub.href}
-                                                    initial={{ opacity: 0, height: 0 }}
-                                                    animate={{ opacity: 1, height: "auto" }}
-                                                    exit={{ opacity: 0, height: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                >
-                                                    <Link to={sub.href} className='block ml-6 p-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg'>
-                                                        <sub.icon size={18} style={{ color: sub.color, minWidth: "18px" }} className="mr-2 inline-block" />
-                                                        {isSidebarOpen && sub.name}
-                                                    </Link>
-                                                </motion.div>
-                                            ))}
-                                    </AnimatePresence>
-                                </>
-                            ) : (
-                                <Link to={item.href}>
-                                    <motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2'>
-                                        <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
-                                        {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
-                                    </motion.div>
-                                </Link>
-                            )}
-                        </div>
-                    ))}
-                </nav>
-            </div>
-        </motion.div>
+                                </motion.div>
+                            </Link>
+                        )}
+                    </div>
+                ))}
+            </nav>
+        </div>
+    </motion.div>
     );
 };
 
