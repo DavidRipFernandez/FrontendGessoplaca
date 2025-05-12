@@ -24,7 +24,7 @@ const LoginPage = () => {
     const datas = await login(data.email,data.password);
       if(datas.isSuccess){
         LoginMessages.Success(datas.message);
-        navigator('/users/users/list',{replace:true});
+        navigator('/users/sales',{replace:true});
         return;
       }
       LoginMessages.Failed(datas.message);

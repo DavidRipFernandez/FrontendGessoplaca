@@ -13,6 +13,8 @@ import  RegisterPage  from '../pages/RegisterPage';
 import { Navigate } from 'react-router-dom';
 import { UsersList } from '../pages/UsersLists';
 import { RolesPage } from '../pages/RolesPage';
+import PreciosProveedoresPage from '../pages/PrecioProveedoresPage';
+import PreciosMarcaPage from '../pages/PreciosMarcaPage';	
 
 
 export function RoutesAuth(){
@@ -20,18 +22,20 @@ export function RoutesAuth(){
     return(<>
     	<Sidebar />
         <Routes>
-                <Route path='/dashboard' element={<OverviewPage />} />
-				<Route path='/register' element={<RegisterPage/>}/>
-				<Route path='/products' element={<ProductsPage />} />
-				<Route path='/users' element={<UsersPage />} />
-				<Route path='/sales' element={<SalesPage />} />
-				<Route path='/orders' element={<OrdersPage />} />
-				<Route path='/analytics' element={<AnalyticsPage />} />
-				<Route path='/settings' element={<SettingsPage />} />
-				<Route path="/users/list" element={<UsersList />}/>
-				<Route path="/users/roles" element={<RolesPage/>}/>
-				<Route path="/users/permisos" element={<PermissionsPage />}/>
-                <Route path="/*" element={<Navigate element="/dasboard"/>}/>
+                <Route path='dashboard' element={<OverviewPage />} />
+				<Route path='register' element={<RegisterPage/>}/>
+				<Route path='products' element={<ProductsPage />} />
+				<Route path='users' element={<UsersPage />} />
+				<Route path='sales' element={<SalesPage />} />
+				<Route path='orders' element={<OrdersPage />} />
+				<Route path='analytics' element={<AnalyticsPage />} />
+				<Route path='settings' element={<SettingsPage />} />
+				<Route path="list" element={<UsersList />}/>
+				<Route path="roles" element={<RolesPage/>}/>
+				<Route path="permisos" element={<PermissionsPage />}/>
+				<Route path="precios_proveedores" element={<PreciosProveedoresPage/>}/>
+				<Route path="precios_marca" element={<PreciosMarcaPage/>}/>
+                <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
     </>);
 

@@ -15,7 +15,7 @@ function App() {
 												  <RoutesAuth/>
 											</PrivateComponente>
                                           } /> 
-				 <Route path="/*" element={<Navigate element="/"/>}/>
+				 <Route path="/*" element={<Navigate to="/" replace/>}/>  
 			</Routes>
 		</div>
 	);

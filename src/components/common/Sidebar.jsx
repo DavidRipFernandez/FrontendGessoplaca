@@ -1,7 +1,15 @@
 import { 
     BarChart2, DollarSign, Menu, Settings, ShoppingBag, 
     ShoppingCart, TrendingUp, UserRoundPlus, KeyRound, Shield, 
-    UserCog, Power 
+    UserCog, Power, 
+    ArchiveIcon,
+    ListIcon,
+    ShapesIcon,
+    BrickWallIcon,
+    CircleDollarSign,
+    CoinsIcon,
+    useEffect,
+    HandCoins
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -14,6 +22,7 @@ const Sidebar = () => {
     const { logout } = useContext(UserContext);
     const navigate = useNavigate(); // Hook para redirección
 
+    
     const toggleSubmenu = (name) => {
         setOpenSubmenus((prev) => ({ ...prev, [name]: !prev[name] }));
     };
@@ -31,9 +40,29 @@ const Sidebar = () => {
             href: "/users",
             subItems: [
                 { name: "Crear Usuario", icon: UserRoundPlus, color: "#F97316", href: "/users/register" },
-                { name: "Usuarios", icon: UserRoundPlus, color: "#F97316", href: "/users/users/list" },
-                { name: "Crear Rol", icon: KeyRound, color: "#F97316", href: "/users/users/roles" },
-                { name: "Crear Permisos", icon: Shield, color: "#10B981", href: "/users/users/permisos" },
+                { name: "Usuarios", icon: UserRoundPlus, color: "#F97316", href: "/users/list" },
+                { name: "Crear Rol", icon: KeyRound, color: "#F97316", href: "/users/roles" },
+                { name: "Crear Permisos", icon: Shield, color: "#10B981", href: "/users/permisos" },
+            ],
+        },
+        { 
+            name: "Elementos", 
+            icon: ArchiveIcon, 
+            color: "#F59E0B", 
+            subItems: [
+                { name: "Categorias", icon: ShapesIcon, color: "#F97316", href: "/users/materials/categories" },
+                { name: "Materiales", icon: BrickWallIcon, color: "#F97316", href: "/users/materials" },
+                { name: "Tarifa Materiales", icon: CircleDollarSign, color: "#F97316", href: "/materials/pricing" },
+
+            ],
+        },
+         { 
+            name: "Precios Materiales", 
+            icon: HandCoins, 
+            color: "#F59E0B", 
+            subItems: [
+                { name: "Precios Por Proveedor", icon: ShapesIcon, color: "#F97316", href: "/users/precios_proveedores" },
+                { name: "Precios Por Marca", icon: BrickWallIcon, color: "#F97316", href: "/users/precios_marca" },
             ],
         },
         { name: "Productos", icon: ShoppingBag, color: "#8B5CF6", href: "/users/products" },
@@ -46,12 +75,14 @@ const Sidebar = () => {
 
     return (
         <motion.div
-        className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 ${
-            isSidebarOpen ? "w-64" : "w-20"
-        }`}
+        className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 overflow-visible ${ isSidebarOpen ? "w-64" : "w-20" }`}
         animate={{ width: isSidebarOpen ? 256 : 80 }}
     >
-        <div className='h-full bg-menu-color-dark bg-opacity-0 backdrop-blur-md p-4 flex flex-col border-r border-gray-700'>
+        <div 
+            className={`h-full bg-menu-color-dark bg-opacity-0 backdrop-blur-md ${
+            isSidebarOpen ? "p-4" : "p-2"
+            } flex flex-col border-r border-gray-700`}
+        >
             {/* Contenedor para el ícono de menú y el nombre "Gessoplaca" */}
             <div className="flex items-center">
                 <motion.button
@@ -76,7 +107,7 @@ const Sidebar = () => {
             </div>
     
             {/* Resto del código del sidebar */}
-            <nav className='mt-8 flex-grow'>
+            <nav className='mt-8 flex-grow overflow-y-auto hide-scrollbar'>
                 {SIDEBAR_ITEMS.map((item) => (
                     <div key={item.name}>
                         {item.action ? (
@@ -123,7 +154,12 @@ const Sidebar = () => {
                                                 exit={{ opacity: 0, height: 0 }}
                                                 transition={{ duration: 0.2 }}
                                             >
-                                                <Link to={sub.href} className='block ml-6 p-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg'>
+                                                    <Link 
+                                                        to={sub.href} 
+                                                        className={`block p-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg ${
+                                                        isSidebarOpen ? "ml-6 text-left" : "mx-auto" 
+                                                        }`}
+                                                    >
                                                     <sub.icon size={18} style={{ color: sub.color, minWidth: "18px" }} className="mr-2 inline-block" />
                                                     {isSidebarOpen && sub.name}
                                                 </Link>
@@ -133,7 +169,10 @@ const Sidebar = () => {
                             </>
                         ) : (
                             <Link to={item.href}>
-                                <motion.div className='flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2'>
+                                    <motion.div className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors mb-2 ${
+                                        isSidebarOpen ? "" : "justify-center"
+                                        }`}
+                                    >
                                     <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
                                     {isSidebarOpen && <span className='ml-4 whitespace-nowrap'>{item.name}</span>}
                                 </motion.div>

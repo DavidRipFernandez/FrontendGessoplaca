@@ -1,8 +1,18 @@
+/* stylelint-disable at-rule-no-unknown */
+/* css-lint-disable unknown-at-rules */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
 
-
+/* Oculta la scrollbar pero mantiene el scroll funcional */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari y Opera */
+}
 
 span{
     color:white;
