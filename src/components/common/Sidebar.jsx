@@ -8,7 +8,6 @@ import {
     BrickWallIcon,
     CircleDollarSign,
     CoinsIcon,
-    useEffect,
     HandCoins
 } from "lucide-react";
 import { useContext, useState } from "react";
