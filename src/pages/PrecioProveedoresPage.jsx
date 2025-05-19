@@ -1,19 +1,14 @@
 
 import Header from "../components/common/Header";
-//export default function PreciosProveedoresPage() {
-//return (
-//<div className="p-6">
-//<h1 className="text-2xl font-semibold">Precios Por Proveedor</h1>
-//{/* Tu contenido aquí */}
-//</div>
-//);
-//}
+import ActiveSuppliersTable from "../components/suppliers/ActiveSuppliersTable";
 
-const PreciosProveedoresPage = () => {
-    return (
-        <div className='flex-1 overflow-auto relative z-10'>
-        <Header title='Lista de Proveedores' />
-        </div>
-    );
-};
-export default PreciosProveedoresPage
+export default function SuppliersPage() {
+  return (
+    <div className="flex-1 relative z-10 overflow-auto">
+      <Header title="Proveedores Activos" />
+      <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
+        <ActiveSuppliersTable />
+      </main>
+    </div>
+  );
+}
