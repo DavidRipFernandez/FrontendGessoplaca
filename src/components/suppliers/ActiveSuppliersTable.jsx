@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Eye, ExternalLink } from "lucide-react";
+import { Search, Eye, ExternalLink, X } from "lucide-react";
 import { SupplierService } from "../../services/SupplierService";
 
 const ActiveSuppliersTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
 
-  // Buscar por nombre (buscador)
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
@@ -21,7 +21,6 @@ const ActiveSuppliersTable = () => {
     })();
   }, []);
 
-  // Filtro por nombre
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter((sup) =>
       sup.nombre.toLowerCase().includes(searchTerm)
@@ -83,7 +82,7 @@ const ActiveSuppliersTable = () => {
                     <button
                       className="text-indigo-400 hover:text-indigo-300"
                       title="Ver detalles"
-                      onClick={() => alert(`Ver detalles de ${sup.nombre}`)}
+                      onClick={() => setSelectedSupplier(sup)}
                     >
                       <Eye size={18} />
                     </button>
@@ -101,6 +100,50 @@ const ActiveSuppliersTable = () => {
           </tbody>
         </table>
       </div>
+
+      {/* MODAL DE DETALLES */}
+      {selectedSupplier && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-md relative border border-gray-700"
+            initial={{ scale: 0.9, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 50 }}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+              onClick={() => setSelectedSupplier(null)}
+              title="Cerrar"
+            >
+              <X size={22} />
+            </button>
+            <h3 className="text-lg font-bold mb-4 text-gray-100">
+              Detalles del Proveedor
+            </h3>
+            <div className="mb-2">
+              <span className="text-gray-400">CIF: </span>
+              <span className="text-gray-100 font-medium">{selectedSupplier.proveedorCifId}</span>
+            </div>
+            <div className="mb-2">
+              <span className="text-gray-400">Nombre: </span>
+              <span className="text-gray-100 font-medium">{selectedSupplier.nombre}</span>
+            </div>
+            <div className="mb-2">
+              <span className="text-gray-400">Domicilio Social: </span>
+              <span className="text-gray-100 font-medium">{selectedSupplier.domicilioSocial}</span>
+            </div>
+            {/* Puedes agregar más campos según tu modelo, ej: contactos, marcas, etc. */}
+            <div className="flex justify-end mt-6">
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                onClick={() => setSelectedSupplier(null)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
