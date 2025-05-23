@@ -103,47 +103,64 @@ const ActiveSuppliersTable = () => {
 
       {/* MODAL DE DETALLES */}
       {selectedSupplier && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25">
-          <motion.div
-            className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-md relative border border-gray-700"
-            initial={{ scale: 0.9, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 50 }}
-          >
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
-              onClick={() => setSelectedSupplier(null)}
-              title="Cerrar"
-            >
-              <X size={22} />
-            </button>
-            <h3 className="text-lg font-bold mb-4 text-gray-100">
-              Detalles del Proveedor
-            </h3>
-            <div className="mb-2">
-              <span className="text-gray-400">CIF: </span>
-              <span className="text-gray-100 font-medium">{selectedSupplier.proveedorCifId}</span>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/15 " style={{ minHeight: "75vh" }}>
+    <motion.div
+      className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-md relative border border-gray-700 flex flex-col"
+      initial={{ scale: 0.9, opacity: 0, y: 50 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0.9, opacity: 0, y: 50 }}
+    >
+      {/* Botón de cerrar siempre visible */}
+      <button
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+        onClick={() => setSelectedSupplier(null)}
+        title="Cerrar"
+      >
+        <X size={22} />
+      </button>
+      {/* Título */}
+      <h3 className="text-lg font-bold mb-4 text-gray-100">
+        Contactos del Proveedor
+      </h3>
+      {/* SOLO contactos tienen scroll */}
+      <div className="hide-scrollbar overflow-y-auto max-h-[35vh] pr-2">
+        {selectedSupplier.contactos && selectedSupplier.contactos.length > 0 ? (
+          selectedSupplier.contactos.map((c, idx) => (
+            <div key={c.contactoId} className="mb-4">
+              <div className="mb-1 text-gray-100">
+                <span className="font-semibold text-gray-300">Nombre:</span> {c.nombre}
+              </div>
+              <div className="mb-1 text-gray-100">
+                <span className="font-semibold text-gray-300">Correo:</span> {c.correo}
+              </div>
+              <div className="mb-1 text-gray-100">
+                <span className="font-semibold text-gray-300">Teléfono:</span> {c.telefono}
+              </div>
+              <div className="mb-1 text-gray-100">
+                <span className="font-semibold text-gray-300">Descripción:</span> {c.descripcion}
+              </div>
+              {idx !== selectedSupplier.contactos.length - 1 && (
+                <hr className="my-3 border-gray-700" />
+              )}
             </div>
-            <div className="mb-2">
-              <span className="text-gray-400">Nombre: </span>
-              <span className="text-gray-100 font-medium">{selectedSupplier.nombre}</span>
-            </div>
-            <div className="mb-2">
-              <span className="text-gray-400">Domicilio Social: </span>
-              <span className="text-gray-100 font-medium">{selectedSupplier.domicilioSocial}</span>
-            </div>
-            {/* Puedes agregar más campos según tu modelo, ej: contactos, marcas, etc. */}
-            <div className="flex justify-end mt-6">
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                onClick={() => setSelectedSupplier(null)}
-              >
-                Cerrar
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+          ))
+        ) : (
+          <div className="text-gray-400">Este proveedor no tiene contactos registrados.</div>
+        )}
+      </div>
+      {/* Botón cerrar abajo */}
+      <div className="flex justify-end mt-6">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          onClick={() => setSelectedSupplier(null)}
+        >
+          Cerrar
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
+
     </motion.div>
   );
 };
