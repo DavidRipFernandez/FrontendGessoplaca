@@ -9,10 +9,10 @@ const api = axios.create(
 );
 
 //Ejemplo de interceptor de respuesta :
-api.interceptors.response.use(
+api.interceptors.response.use
+(
     response => response.data,  //extrae directamente .data
     error => Promise.reject(error.response?.data || error.message)
-
 );
 
 export default api;
