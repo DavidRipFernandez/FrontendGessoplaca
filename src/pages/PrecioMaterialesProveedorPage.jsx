@@ -42,10 +42,13 @@ export default function PrecioMaterialesProveedorPage() {
         >
           <ArrowLeft size={20} className="mr-2" /> Volver a Proveedores
         </button>
-        <h2 className="text-xl font-semibold mb-4 text-gray-100">
-          {proveedor ? `Materiales de ${proveedor.nombre}` : "Materiales"}
-        </h2>
-        <MaterialsTable loading={loading} error={error} materials={materials} />
+        {/*
+          <h2 className="text-xl font-semibold mb-4 text-gray-100">
+            {proveedor ? `Materiales de ${proveedor.nombre}` : "Materiales"}
+           </h2>
+          */
+        }
+        <MaterialsTable loading={loading} error={error} materials={materials} proveedorNombre={proveedor?.nombre} />
       </main>
     </div>
   );
