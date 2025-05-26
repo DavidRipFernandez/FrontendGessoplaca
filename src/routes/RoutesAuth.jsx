@@ -35,7 +35,7 @@ export function RoutesAuth(){
 				<Route path="roles" element={<RolesPage/>}/>
 				<Route path="permisos" element={<PermissionsPage />}/>
 				<Route path="precios_proveedores" element={<PreciosProveedoresPage/>}/>
-				<Route path="precios_materiales_proveedor" element={<PrecioMaterialesProveedorPage/>}/>
+				<Route path="precios_materiales_proveedor/:proveedorCifId" element={<PrecioMaterialesProveedorPage/>}/>
 				<Route path="precios_marca" element={<PreciosMarcaPage/>}/>
                 <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search, Eye, ExternalLink, X } from "lucide-react";
 import { SupplierService } from "../../services/SupplierService";
+import { useNavigate } from "react-router-dom";
 
 const ActiveSuppliersTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +27,8 @@ const ActiveSuppliersTable = () => {
       sup.nombre.toLowerCase().includes(searchTerm)
     );
   }, [suppliers, searchTerm]);
+
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -89,7 +92,7 @@ const ActiveSuppliersTable = () => {
                     <button
                       className="text-green-400 hover:text-green-300"
                       title="Abrir proveedor"
-                      onClick={() => alert(`Abrir proveedor ${sup.nombre}`)}
+                      onClick={() => navigate(`/users/precios_materiales_proveedor/${sup.proveedorCifId}`)}
                     >
                       <ExternalLink size={18} />
                     </button>
