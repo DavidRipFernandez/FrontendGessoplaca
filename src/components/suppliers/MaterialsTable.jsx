@@ -1,12 +1,23 @@
 import { useState } from "react";
-import { Edit, X, Search } from "lucide-react";
+import { Edit, X, Search, Upload } from "lucide-react";
 import { motion } from "framer-motion";
+import * as XLSX from "xlsx";
 
-export default function MaterialsTable({ loading, error, materials, proveedorNombre }) 
-{
+const MARCAS_DEMO = [
+  { id: 1, nombre: "Placo" },
+  { id: 2, nombre: "Knauf" },
+  { id: 3, nombre: "Volcan" },
+];
+
+export default function MaterialsTable({ loading, error, materials, proveedorNombre }) {
   const [editingMaterial, setEditingMaterial] = useState(null);
   const [editFields, setEditFields] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Carga Masiva (bulk upload)
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [file, setFile] = useState(null);
 
   const filteredMaterials = materials.filter(
     (mat) =>
@@ -35,10 +46,38 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
     setEditingMaterial(null);
   };
 
+  // Excel export
+  const handleExportExcel = () => {
+    const dataToExport = filteredMaterials.map(mat => ({
+      "Nombre Material": mat.nombreMaterial || "",
+      "Sistema Medición": mat.sistemaMedicion || "",
+      "Precio": mat.precio ?? "",
+      "Nombre Marca": mat.nombreMarca || ""
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Materiales");
+    XLSX.writeFile(workbook, `Materiales_${proveedorNombre || "Proveedor"}.xlsx`);
+  };
+
+  // --- Modal Carga Masiva ---
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleBulkSave = () => {
+    // Aquí procesarías la carga masiva
+    alert(`Marca: ${selectedBrand}\nArchivo: ${file?.name || "Ninguno"}`);
+    setShowBulkModal(false);
+    setSelectedBrand("");
+    setFile(null);
+  };
+
   return (
     <>
       <div className="overflow-x-auto bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700">
-        {/* HEADER y BUSCADOR */}
+        {/* HEADER Y BUSCADOR */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-4">
           <h2 className="text-xl font-semibold text-gray-100">
             Materiales de {proveedorNombre || "Proveedor"}
@@ -55,21 +94,22 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
           </div>
         </div>
 
-        {/* BOTONES Debajo del título */}
+        {/* BOTONES DEBAJO DEL TITULO */}
         <div className="flex flex-wrap gap-3 mb-5">
           <button
-            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 text-sm"
-            onClick={() => alert("Carga masiva en desarrollo")}
+            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 text-sm flex items-center gap-1"
+            onClick={() => setShowBulkModal(true)}
           >
-            Carga Masiva
+            <Upload size={16} /> Carga Masiva
           </button>
           <button
             className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 text-sm"
-            onClick={() => alert("Descargar plantilla en desarrollo")}
+            onClick={handleExportExcel}
           >
             Descargar Plantilla Excel
           </button>
         </div>
+
         {/* TABLA */}
         <table className="min-w-full divide-y divide-gray-700">
           <thead>
@@ -196,6 +236,66 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                 onClick={handleSave}
+              >
+                Guardar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* MODAL DE CARGA MASIVA */}
+      {showBulkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-lg shadow-2xl w-[380px] max-w-full relative border border-gray-700 flex flex-col"
+            initial={{ scale: 0.95, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 50 }}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+              onClick={() => setShowBulkModal(false)}
+              title="Cerrar"
+            >
+              <X size={22} />
+            </button>
+            <h3 className="text-lg font-bold mb-4 text-gray-100">
+              Carga Masiva {proveedorNombre ? `de ${proveedorNombre}` : ""}
+            </h3>
+            <div className="mb-4">
+              <label className="block text-gray-300 mb-1">Seleccionar Marca</label>
+              <select
+                className="w-full p-2 rounded bg-gray-700 text-white"
+                value={selectedBrand}
+                onChange={e => setSelectedBrand(e.target.value)}
+              >
+                <option value="">Seleccione una marca</option>
+                {MARCAS_DEMO.map(m => (
+                  <option key={m.id} value={m.nombre}>{m.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-300 mb-1">Subir archivo Excel</label>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                className="w-full p-2 rounded bg-gray-700 text-white"
+                onChange={handleFileChange}
+              />
+              {file && (
+                <div className="text-xs text-gray-400 mt-1">
+                  Archivo seleccionado: <span className="font-medium">{file.name}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                onClick={handleBulkSave}
+                disabled={!selectedBrand || !file}
+                title="Debe seleccionar una marca y un archivo"
               >
                 Guardar
               </button>
