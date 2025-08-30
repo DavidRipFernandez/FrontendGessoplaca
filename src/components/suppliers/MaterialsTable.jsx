@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Edit, X, Search, Upload } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Edit, X, Search, Upload, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import * as XLSX from "xlsx";
 
@@ -14,17 +14,35 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
   const [editFields, setEditFields] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Carga Masiva (bulk upload)
+  // Modales
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState("");
   const [file, setFile] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [selectedMarcaExcel, setSelectedMarcaExcel] = useState("Todos");
 
-  const filteredMaterials = materials.filter(
-    (mat) =>
-      mat.nombreMaterial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mat.codigoMaterial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mat.nombreMarca?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrar materiales por búsqueda
+  const filteredMaterials = useMemo(() =>
+    materials.filter(
+      (mat) =>
+        mat.nombreMaterial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mat.codigoMaterial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        mat.nombreMarca?.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [materials, searchTerm]
   );
+
+  // Marcas únicas para el modal de descarga personalizada
+  const marcasUnicas = useMemo(() => {
+    const marcasSet = new Set();
+    const marcasArr = [];
+    materials.forEach(mat => {
+      if (mat.nombreMarca && !marcasSet.has(mat.nombreMarca)) {
+        marcasSet.add(mat.nombreMarca);
+        marcasArr.push(mat.nombreMarca);
+      }
+    });
+    return marcasArr;
+  }, [materials]);
 
   const handleEditClick = (material) => {
     setEditingMaterial(material);
@@ -46,32 +64,40 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
     setEditingMaterial(null);
   };
 
-  // Excel export
-  const handleExportExcel = () => {
-    const dataToExport = filteredMaterials.map(mat => ({
+  // --- Modal Carga Masiva ---
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+  const handleBulkSave = () => {
+    alert(`Marca: ${selectedBrand}\nArchivo: ${file?.name || "Ninguno"}`);
+    setShowBulkModal(false);
+    setSelectedBrand("");
+    setFile(null);
+  };
+
+  // --- Modal Descarga Personalizada ---
+  const handleExportExcelPersonalizado = () => {
+    // Filtra materiales por marca seleccionada
+    const dataToExport = materials.filter(mat =>
+      selectedMarcaExcel === "Todos" || mat.nombreMarca === selectedMarcaExcel
+    ).map(mat => ({
       "Nombre Material": mat.nombreMaterial || "",
       "Sistema Medición": mat.sistemaMedicion || "",
       "Precio": mat.precio ?? "",
       "Nombre Marca": mat.nombreMarca || ""
     }));
 
+    if (dataToExport.length === 0) {
+      alert("No existen materiales para exportar con la marca seleccionada.");
+      return;
+    }
+
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Materiales");
     XLSX.writeFile(workbook, `Materiales_${proveedorNombre || "Proveedor"}.xlsx`);
-  };
-
-  // --- Modal Carga Masiva ---
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleBulkSave = () => {
-    // Aquí procesarías la carga masiva
-    alert(`Marca: ${selectedBrand}\nArchivo: ${file?.name || "Ninguno"}`);
-    setShowBulkModal(false);
-    setSelectedBrand("");
-    setFile(null);
+    setShowDownloadModal(false);
+    setSelectedMarcaExcel("Todos");
   };
 
   return (
@@ -103,10 +129,10 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
             <Upload size={16} /> Carga Masiva
           </button>
           <button
-            className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 text-sm"
-            onClick={handleExportExcel}
+            className="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 text-sm flex items-center gap-1"
+            onClick={() => setShowDownloadModal(true)}
           >
-            Descargar Plantilla Excel
+            <Download size={16} /> Descargar Plantilla Excel
           </button>
         </div>
 
@@ -261,7 +287,7 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
               <X size={22} />
             </button>
             <h3 className="text-lg font-bold mb-4 text-gray-100">
-              Carga Masiva {proveedorNombre ? `de ${proveedorNombre}` : ""}
+              Carga Masiva {proveedorNombre ? `para el proveedor ${proveedorNombre}` : ""}
             </h3>
             <div className="mb-4">
               <label className="block text-gray-300 mb-1">Seleccionar Marca</label>
@@ -298,6 +324,50 @@ export default function MaterialsTable({ loading, error, materials, proveedorNom
                 title="Debe seleccionar una marca y un archivo"
               >
                 Guardar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* MODAL DE DESCARGA PERSONALIZADA */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <motion.div
+            className="bg-gray-900 p-6 rounded-lg shadow-2xl w-[380px] max-w-full relative border border-gray-700 flex flex-col"
+            initial={{ scale: 0.95, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 50 }}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
+              onClick={() => setShowDownloadModal(false)}
+              title="Cerrar"
+            >
+              <X size={22} />
+            </button>
+            <h3 className="text-lg font-bold mb-4 text-gray-100">
+              Descarga Personalizada
+            </h3>
+            <div className="mb-4">
+              <label className="block text-gray-300 mb-2">Lista de Marcas</label>
+              <select
+                className="w-full p-2 rounded bg-gray-700 text-white"
+                value={selectedMarcaExcel}
+                onChange={e => setSelectedMarcaExcel(e.target.value)}
+              >
+                <option value="Todos">Todos</option>
+                {marcasUnicas.map((marca, idx) => (
+                  <option key={marca} value={marca}>{marca}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                onClick={handleExportExcelPersonalizado}
+              >
+                Descargar
               </button>
             </div>
           </motion.div>
